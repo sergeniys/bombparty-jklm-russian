@@ -14,23 +14,24 @@
             height: 100vh;
             margin: 0;
             position: relative;
-            overflow: hidden; /* Добавлен стиль для скрытия элементов выходящих за границы */
+            overflow: hidden;
+            font-family: 'Comic Sans MS', cursive; /* Изменен шрифт на Comic Sans MS */
         }
-
         .content {
             text-align: center;
-            color: white;
+            color: #AAAAAA;
         }
 
         button {
             padding: 10px 20px;
-            background-color: #EAB4F6;
+            background-color: #26A936;
             color: white;
             border: none;
             border-radius: 5px;
             font-size: 16px;
             cursor: pointer;
             margin-top: 20px;
+            font-family: 'Comic Sans MS', cursive; /* Изменен шрифт на Comic Sans MS */
         }
 
         button:hover {
@@ -43,30 +44,36 @@
             font-size: 16px;
         }
 
-        .random-letters {
-            position: absolute;
-            color: white;
-            font-size: 24px;
-            animation: move 10s linear infinite; /* Изменена анимация на бесконечное движение */
-            white-space: nowrap;
-        }
+ .random-letters {
+    position: absolute;
+    color: #AAAAAA;
+    font-size: 24px;
+animation: fade 2s linear; /* Удалите эту строку */
+    white-space: nowrap;
+}
 
-        @keyframes move {
-            0%, 100% {
-                transform: translate(0, 0);
-            }
-
-            50% {
-                transform: translate(100vw, 100vh);
-            }
-        }
+@keyframes fade {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        color: #AAAAAA;
+        opacity: 1
+    }
+    100% {
+        color: #AAAAAA;
+        opacity: 0;
+    }
+}
     </style>
 </head>
 
 <body>
     <div class="content">
         <h1>BombParty Russian edition</h1>
-        <p>Здесь будут красивые слова с правилами игры.</p>
+        <p>Суть игры:</p>
+         <p>с началом игры вам даётся буквосочетание, и вы должны подобрать слово</p>
+        <p>в котором это сочеnfние будет, а затем буквы меняются, всё просто!</p></p>
         <input type="text" id="nick_input" placeholder="Введите ваш ник">
         <a href="/game">
             <button id="start_game_btn">Начать</button>
@@ -91,30 +98,67 @@
             });
         });
 
-        function generateRandomLetters() {
-            var letters = 'йцукенгшщзхъфывапролджэячсмитьбю';
-            var randomLetters = '';
-            for (var i = 0; i < 2; i++) {
-                randomLetters += letters.charAt(Math.floor(Math.random() * letters.length));
+function generateRandomLetters() {
+    var letters = 'йцукенгшщзхъфывапролджэячсмитьбю';
+    var randomLetters = '';
+    for (var i = 0; i < 2; i++) {
+        randomLetters += letters.charAt(Math.floor(Math.random() * letters.length));
+    }
+
+    var letterElement = document.createElement('div');
+    letterElement.textContent = randomLetters;
+    letterElement.className = 'random-letters';
+    letterElement.style.left = Math.random() * 100 + 'vw';
+    letterElement.style.top = Math.random() * 100 + 'vh';
+
+    document.body.appendChild(letterElement);
+
+    setTimeout(function() {
+        letterElement.style.animation = 'fadeOut 2s linear'; // Добавление анимации исчезновения
+        letterElement.addEventListener('animationend', function() {
+            letterElement.remove(); // Удаление элемента после завершения анимации
+        });
+    }, 5000);
+}
+
+setInterval(generateRandomLetters, 120);
+
+
+document.addEventListener('mousemove', function(event) {
+    var mouseX = event.clientX;
+    var mouseY = event.clientY;
+
+    var letters = document.querySelectorAll('.random-letters');
+    letters.forEach(function(letter) {
+        var letterX = letter.offsetLeft + letter.offsetWidth / 2;
+        var letterY = letter.offsetTop + letter.offsetHeight / 2;
+
+        var distX = mouseX - letterX;
+        var distY = mouseY - letterY;
+        var distance = Math.sqrt(distX * distX + distY * distY);
+
+        if (distance < 200 && distance > 130) {
+            var angle = Math.atan2(distY, distX);
+            var force = 700 / distance;
+
+            var forceX = Math.cos(angle) * force;
+            var forceY = Math.sin(angle) * force;
+
+            letter.style.left = letter.offsetLeft - forceX + 'px';
+            letter.style.top = letter.offsetTop - forceY + 'px';
+
+            letter.style.transform = 'rotate(' + distance/2 + 'deg)';
+        } else {
+            var rotation = parseInt(letter.style.transform.replace('rotate(', '').replace('deg)', ''));
+            if (!isNaN(rotation)) {
+                var newRotation = rotation * 0.95; // Замедление вращения
+                letter.style.transform = 'rotate(' + newRotation + 'deg)';
             }
-
-            var letterElement = document.createElement('div');
-            letterElement.textContent = randomLetters;
-            letterElement.className = 'random-letters';
-            letterElement.style.left = Math.random() * 50 + 'vw';
-            letterElement.style.top = Math.random() * 50 + 'vh';
-
-            document.body.appendChild(letterElement);
-
-            setTimeout(function() {
-                letterElement.style.opacity = '1';
-                setTimeout(function() {
-                    letterElement.remove();
-                }, 3000);
-            }, 1000);
         }
+    });
+});
 
-        setInterval(generateRandomLetters, 100);
+
     </script>
 </body>
 
