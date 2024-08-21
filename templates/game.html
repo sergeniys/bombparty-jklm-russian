@@ -1,0 +1,44 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Игра BombParty</title>
+<style>
+    body {
+        background-color: #4E443C;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+    #game-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+    #bomb {
+        max-width: 50%;
+        max-height: 50%;
+        margin-right: 20px;
+    }
+    .frame {
+        border: 2px solid black;
+        padding: 10px;
+        margin: 10px;
+    }
+</style>
+</head>
+<body>
+<div id="game-container">
+     <div class="frame" id="bot-frame">Бот</div>
+    <img src="/static/images/bomby.png" id="bomb" alt="Bomb image">
+
+    <div class="frame" id="player-frame">Игрок</div>
+</div>
+
+</body>
+</html>

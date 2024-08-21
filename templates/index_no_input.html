@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flask Site with AJAX</title>
+<style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+</style>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<div>
+    <div id="word" style="font-size: 20px; text-align: center;"></div>
+    <div id="output" style="font-size: 24px; text-align: center;"></div>
+    <div id="message" style="font-size: 20px; text-align: center; display: none;"></div>
+</div>
+<script>
+    var text = '';
+
+    function createWord() {
+        $.ajax({
+            url: '/create_word',
+            type: 'GET',
+            success: function(response) {
+                $('#word').text(response.word);
+            }
+        });
+    }
+
+    createWord();
+
+    $(document).keypress(function(event) {
+        var char = String.fromCharCode(event.which);
+        text += char;
+        $('#output').text(text);
+    });
+
+    $(document).keyup(function(event) {
+        if (event.keyCode === 13) {
+            $.ajax({
+                url: '/check_numbers',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({text: text}),
+                success: function(response) {
+                    if (response.hasNumbers) {
+                        $('#message').text('Отлично');
+                        createWord();
+                    } else {
+                        $('#message').text('Плохо');
+                    }
+                    $('#message').show();
+                    setTimeout(function() {
+                        $('#message').hide();
+                        text = '';
+                        $('#output').text('');
+
+                    }, 400);
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>

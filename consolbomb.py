@@ -1,0 +1,63 @@
+
+import random
+from threading import Timer
+f = open(r'russian.txt').readlines()
+letters = ["а", "б", "в", "г", "д", "е", "ё", "ж", "з", "и", "й", "к", "л", "м", "н", "о", "п",
+           "р", "с", "т", "у", "ф", "х", "ц", "ч", "ш", "щ", "ъ", "ы", "ь", "э", "ю", "я"]
+zapret = ['ь', 'ъ', 'ы', 'ф', 'э']
+
+sogls = ['б', "в", "г", "д", "ж", "з" "к", "л", "м", "н", "п", "р", "с", "т", "ф", "х", "ч", "щ", "ш", "й", "ц"]
+vse_gls = ["а", "е", "ё", "и", "о", "у", "ы", "э", "ю", "я"]
+
+historsis = []  # list of words
+
+
+
+
+
+
+
+def proverka(choser):
+    if choser[0] in zapret or choser[1] in zapret:
+        return False
+    if choser[0] in sogls and choser[1] in sogls:
+        return False
+    if choser[1] in vse_gls and choser[0] in vse_gls:
+        return False
+    return True
+
+
+def create():
+    while True:
+        choser = ''.join(random.choices(letters, k=2))
+        if proverka(choser):
+            return choser
+
+
+def task(message):
+    # report the custom message
+
+    print(message)
+
+    raise NameError('HiThere')
+    exit(0)
+
+
+#
+#
+# print('добро пожаловать')
+#
+# while True:
+#     choser = create()
+#
+#     timer = Timer(7, task, args=('Время кончилось',))
+#     timer.start()
+#     while True:
+#         inn = input(f'{choser}:-')
+#         if choser in inn and f'{inn}\n' in f and inn not in historsis:
+#             historsis.append(inn)
+#             timer.cancel()
+#             break
+#         else:
+#             print('плохо')
+
