@@ -1,0 +1,52 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Таблица лидеров</title>
+<style>
+    button {
+        padding: 10px 20px;
+        background-color: #EAB4F6;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 20px;
+    }
+    body {
+        background-color: #4E443C;
+        color: white;
+    }
+    table {
+        width: 50%;
+        margin: 20px auto;
+        border-collapse: collapse;
+    }
+    th, td {
+        border: 1px solid white;
+        padding: 8px;
+        text-align: center;
+    }
+</style>
+</head>
+<body>
+<h1>Таблица лидеров</h1>
+     <a href="/">
+    <button id="home_btn">Назад</button>
+         </a>
+<table>
+    <tr>
+        <th>Ник</th>
+        <th>Счет</th>
+    </tr>
+    {% for leader in leaders %}
+    <tr>
+        <td>{{ leader.nick }}</td>
+        <td>{{ leader.score }}</td>
+    </tr>
+    {% endfor %}
+</table>
+</body>
+</html>

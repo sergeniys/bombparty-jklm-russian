@@ -1,45 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>bombparty russian</title>
-<style>
-    body {
-        background-color: #4E443C;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-    }
-    .content {
-        text-align: center;
-        color: white;
-    }
-    button {
-        padding: 10px 20px;
-        background-color: #EAB4F6;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        font-size: 16px;
-        cursor: pointer;
-        margin-top: 20px;
-    }
-    button:hover {
-        background-color: darkred;
-    }
-</style>
-</head>
-<body>
-<div class="content">
-    <h1>Правила</h1>
-    <p>Здесь будут красивые слова с правилами игры.</p>
-    <a href="/game">
-  <button>Начать</button>
-</a>
 
-</div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bombparty russian</title>
+    <style>
+        body {
+            background-color: #4E443C;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            position: relative;
+            overflow: hidden; /* Добавлен стиль для скрытия элементов выходящих за границы */
+        }
+
+        .content {
+            text-align: center;
+            color: white;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #EAB4F6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: darkred;
+        }
+
+        input {
+            padding: 5px;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        .random-letters {
+            position: absolute;
+            color: white;
+            font-size: 24px;
+            animation: move 10s linear infinite; /* Изменена анимация на бесконечное движение */
+            white-space: nowrap;
+        }
+
+        @keyframes move {
+            0%, 100% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(100vw, 100vh);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="content">
+        <h1>BombParty Russian edition</h1>
+        <p>Здесь будут красивые слова с правилами игры.</p>
+        <input type="text" id="nick_input" placeholder="Введите ваш ник">
+        <a href="/game">
+            <button id="start_game_btn">Начать</button>
+        </a>
+        <br>
+        <a href="/leaders">
+            <button>Таблица лидеров</button>
+        </a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $('#start_game_btn').click(function() {
+            var nick = $('#nick_input').val();
+            $.ajax({
+                url: '/save_nick',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    nick: nick
+                }),
+                success: function(response) {}
+            });
+        });
+
+        function generateRandomLetters() {
+            var letters = 'йцукенгшщзхъфывапролджэячсмитьбю';
+            var randomLetters = '';
+            for (var i = 0; i < 2; i++) {
+                randomLetters += letters.charAt(Math.floor(Math.random() * letters.length));
+            }
+
+            var letterElement = document.createElement('div');
+            letterElement.textContent = randomLetters;
+            letterElement.className = 'random-letters';
+            letterElement.style.left = Math.random() * 50 + 'vw';
+            letterElement.style.top = Math.random() * 50 + 'vh';
+
+            document.body.appendChild(letterElement);
+
+            setTimeout(function() {
+                letterElement.style.opacity = '1';
+                setTimeout(function() {
+                    letterElement.remove();
+                }, 3000);
+            }, 1000);
+        }
+
+        setInterval(generateRandomLetters, 100);
+    </script>
 </body>
+
 </html>
