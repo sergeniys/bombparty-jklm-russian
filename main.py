@@ -1,30 +1,40 @@
 from flask import Flask, render_template, request, jsonify
-
 import consolbomb as bomber
-
+from datetime import datetime
 
 app = Flask(__name__)
 f = open(r'russian.txt').readlines()
-params = {'historsis': [], 'phrase': '', 'nick': '', }
+params = {'historsis': [], 'phrase': '', 'nick': '', 'score': 0}
 
 @app.route('/save_nick', methods=['POST'])
 def save_nick():
     global params
     data = request.get_json()
+    print(data)
     params['nick'] = data.get('nick')
 
     if params['nick'] == '':
         params['nick'] = "unnamed"
     return ('', 204)
 
+
 @app.route('/leaders')
 def leaders():
     leaders_data = []
-    with open('leaders.txt', 'r') as leaders_file:
+    with open(r'leaders.txt') as leaders_file:
         for line in leaders_file:
-            nick, score = line.strip().split(',')
-            leaders_data.append({'nick': nick, 'score': score})
-    return render_template('leaders.html', leaders=leaders_data)
+            try:
+                nick, score, date = line.strip().split(',')
+                leaders_data.append({'nick': nick, 'score': int(score), 'date': date})
+            except:
+                pass
+
+    sorted_leaders_data = sorted(leaders_data, key=lambda x: x['score'], reverse=True)
+
+    return render_template('leaders.html', leaders=sorted_leaders_data)
+
+
+
 @app.route('/')
 def indexhome():
     return render_template('indexhome.html')
@@ -32,6 +42,10 @@ def indexhome():
 @app.route('/game')
 def index():
     return render_template('index_no_input.html')
+
+@app.route('/need-computer')
+def indexcomp():
+    return render_template('need-computer.html')
 
 def create_word():
     word = bomber.create()
@@ -42,6 +56,23 @@ def create_word():
 @app.route('/create_word', methods=['GET'])
 def generate_word():
     return jsonify(create_word())
+
+
+
+@app.route('/score', methods=['POST'])
+def save_score():
+    global params
+    data = request.get_json()
+    params['score'] = data['score']
+    if  params['score'] == 0:
+        return ('', 204)
+    # Добавьте текущую дату в формате 'dd.mm.yyyy'
+    current_date = datetime.now().strftime('%d.%m.%Y')
+    with open('leaders.txt', 'a') as f:
+        f.write(f'\n{params["nick"]},{params["score"]},{current_date}')
+
+    return ('', 204)
+
 
 
 

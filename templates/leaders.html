@@ -40,11 +40,13 @@
     <tr>
         <th>Ник</th>
         <th>Счет</th>
+        <th>Дата</th>
     </tr>
     {% for leader in leaders %}
     <tr>
         <td>{{ leader.nick }}</td>
         <td>{{ leader.score }}</td>
+        <td>{{ leader.date }}</td>
     </tr>
     {% endfor %}
 </table>

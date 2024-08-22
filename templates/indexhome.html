@@ -72,8 +72,9 @@ animation: fade 2s linear; /* Удалите эту строку */
     <div class="content">
         <h1>BombParty Russian edition</h1>
         <p>Суть игры:</p>
-         <p>с началом игры вам даётся буквосочетание, и вы должны подобрать слово</p>
-        <p>в котором это сочеnfние будет, а затем буквы меняются, всё просто!</p></p>
+         <p>с началом игры вам даётся буквосочетание на бомбе, и вы должны подобрать слово</p>
+        <p>в котором это сочетание будет, а затем буквы меняются, всё просто!</p>
+        <p>все слова считываются с клавиатуры сразу же, для проверки слова жмите enter</p>
         <input type="text" id="nick_input" placeholder="Введите ваш ник">
         <a href="/game">
             <button id="start_game_btn">Начать</button>
@@ -158,6 +159,10 @@ document.addEventListener('mousemove', function(event) {
     });
 });
 
+// Проверяем, является ли устройство компьютером (не мобильным устройством)
+if ((navigator.userAgent.match(/Android/i)  || navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/iPod/i) || navigator.userAgent.match(/BlackBerry/i) || navigator.userAgent.match(/Windows Phone/i))) {
+    window.location.href = '/need-computer'; // Замените на URL страницы с сообщением
+}
 
     </script>
 </body>

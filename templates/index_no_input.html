@@ -3,24 +3,146 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Flask Site with AJAX</title>
+<title>BombParty RU</title>
 <style>
-    body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
+
+        body {
+            background-color: #4E443C;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Comic Sans MS', cursive; /* Изменен шрифт на Comic Sans MS */
+        }
+        .content {
+
+            color: #AAAAAA;
+        }
+        #bomby {
+            width: 260px; /* Уменьшаем размер изображения */
+            position: fixed; /* Фиксируем позицию изображения */
+            top: 200px; /* Позиционируем изображение 200px сверху */
+            left: 51%; /* Центрируем по горизонтали */
+            transform: translateX(-50%); /* Центрируем по горизонтали */
+        }
+        #word {
+            width: 100px;
+            position: fixed; /* Фиксируем позицию изображения */
+            top: 330px; /* Позиционируем изображение 200px сверху */
+            left: 48%; /* Центрируем по горизонтали */
+            transform: translateX(-50%); /* Центрируем по горизонтали */
+        }
 </style>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-<div>
-    <div id="word" style="font-size: 20px; text-align: center;"></div>
+<img id="bomby" src="static/images/bomby.png" alt="Bomby">
+<div class="content" style="text-align: center;">
+    <div id="word" style="font-size: 30px;"></div>
     <div id="output" style="font-size: 24px; text-align: center;"></div>
-    <div id="message" style="font-size: 20px; text-align: center; display: none;"></div>
+    <div id="message" style="font-size: 20px; display: none;"></div>
 </div>
+<div id="timer" style="position: fixed; top: 30px; right: 30px; font-size: 24px; color: #FFF;"></div>
+
+
 <script>
+ var timerSeconds = 7;
+ var score = 0;
+var timerInterval;
+
+
+  function score() {
+        $.ajax({
+                url: '/score',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    score: score
+                }),
+                success: function(response) {}
+            });
+    }
+
+function showGameOverWindow(score) {
+    var gameOverWindow = document.createElement('div');
+    gameOverWindow.style.backgroundColor = '#202020';
+    gameOverWindow.style.color = '#ffffff';
+    gameOverWindow.style.padding = '20px';
+    gameOverWindow.style.position = 'fixed';
+    gameOverWindow.style.top = '50%';
+    gameOverWindow.style.left = '50%';
+    gameOverWindow.style.transform = 'translate(-50%, -50%)';
+    gameOverWindow.style.width = '33%';
+    gameOverWindow.style.height = '33vh';
+    gameOverWindow.style.textAlign = 'center';
+    gameOverWindow.style.borderRadius = '10px';
+
+    var gameOverMessage = document.createElement('h2');
+    gameOverMessage.innerHTML = 'Вы проиграли, ваш счёт: ' + score;
+    gameOverWindow.appendChild(gameOverMessage);
+
+    var goToMainButton = document.createElement('a');
+    goToMainButton.innerHTML = 'На главную';
+    goToMainButton.href = '/';
+    goToMainButton.style.cssText = 'padding: 10px 20px; background-color: #26A936; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin-top: 20px; font-family: "Comic Sans MS", cursive;';
+    goToMainButton.onmouseover = function() {
+        goToMainButton.style.backgroundColor = 'darkred';
+    };
+    goToMainButton.onmouseout = function() {
+        goToMainButton.style.backgroundColor = '#26A936';
+    };
+    gameOverWindow.appendChild(goToMainButton);
+
+    var leaderboardButton = document.createElement('a');
+    leaderboardButton.innerHTML = 'Таблица лидеров';
+    leaderboardButton.href = '/leaders';
+    leaderboardButton.style.cssText = 'padding: 10px 20px; background-color: #26A936; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin-top: 20px; font-family: "Comic Sans MS", cursive;';
+    leaderboardButton.onmouseover = function() {
+        leaderboardButton.style.backgroundColor = 'darkred';
+    };
+    leaderboardButton.onmouseout = function() {
+        leaderboardButton.style.backgroundColor = '#26A936';
+    };
+    gameOverWindow.appendChild(leaderboardButton);
+
+    document.body.appendChild(gameOverWindow);
+}
+
+
+
+function startTimer() {
+    var timerElement = document.getElementById('timer');
+    timerElement.textContent = 'Оставшееся время: ' + timerSeconds + ' сек';
+
+    timerInterval = setInterval(function() {
+        timerSeconds--;
+        timerElement.textContent = 'Оставшееся время: ' + timerSeconds + ' сек';
+
+        if (timerSeconds === 0) {
+            clearInterval(timerInterval);
+            $('#message').text('Вы проиграли!');
+            $('#message').show();
+             $.ajax({
+                url: '/score',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    score: score
+                }),
+                success: function(response) {
+                  showGameOverWindow(score);
+                  }
+
+
+            });
+        }
+    }, 1000);
+}
+
+
     var text = '';
 
     function createWord() {
@@ -29,48 +151,74 @@
             type: 'GET',
             success: function(response) {
                 $('#word').text(response.word);
+                timerSeconds = 7;
+                startTimer();
             }
         });
     }
 
     createWord();
 
-    $(document).keypress(function(event) {
-        var char = String.fromCharCode(event.which);
-        text += char;
+
+
+$(document).keypress(function(event) {
+    var char = String.fromCharCode(event.which);
+    text += char;
+    $('#output').text(text);
+    /*clearInterval(timerInterval);
+    startTimer();
+    */
+});
+
+$(document).keyup(function(event) {
+    if (event.keyCode === 8) {
+        text = text.slice(0, -1);
         $('#output').text(text);
-    });
-
-    $(document).keyup(function(event) {
-
-        if (event.keyCode === 8) {
-            text = text.slice(0, -1);
-            $('#output').text(text);
-        }
-        if (event.keyCode === 13) {
-            $.ajax({
-                url: '/check_numbers',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({text: text}),
-                success: function(response) {
-                    if (response.hasNumbers) {
-                        $('#message').text('Отлично');
-                        createWord();
-                    } else {
-                        $('#message').text('Плохо');
-                    }
-                    $('#message').show();
+    }
+    if (event.keyCode === 13) {
+        $.ajax({
+            url: '/check_numbers',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ text: text }),
+            success: function(response) {
+                if (response.hasNumbers) {
+                    $('#message').text('Отлично');
+                    score += 1
+                     $('#message').show();
+                    createWord();
+                    timerSeconds = 7;
                     setTimeout(function() {
-                        $('#message').hide();
-                        text = '';
-                        $('#output').text('');
+                    $('#message').hide();
+                    text = '';
+                    $('#output').text('');
+                    timerSeconds = 7;
+                }, 400);
+                clearInterval(timerInterval);
 
-                    }, 400);
+
+                } else {
+                    $('#message').text('Плохо');
+                     $('#message').show();
+                      setTimeout(function() {
+                            $('#message').hide();
+                            text = '';
+                            $('#output').text('');
+
+                }, 400);
                 }
-            });
-        }
-    });
+
+
+
+
+
+
+
+            }
+        });
+    }
+});
+
 </script>
 </body>
 </html>
