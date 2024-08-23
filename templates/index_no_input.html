@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BombParty RU</title>
 <style>
+#myinput {
+  position: fixed;
+  top: 0;
+  width: 40%;
+  height: calc(100vh / 5);
+  background-color: #4E443C;
+  color: #4E443C;
+  border: 1px solid #4E443C;
+  outline: none;
+  left: 0;
+}
 
         body {
             background-color: #4E443C;
@@ -21,20 +32,43 @@
 
             color: #AAAAAA;
         }
-        #bomby {
-            width: 260px; /* Уменьшаем размер изображения */
-            position: fixed; /* Фиксируем позицию изображения */
-            top: 200px; /* Позиционируем изображение 200px сверху */
-            left: 51%; /* Центрируем по горизонтали */
-            transform: translateX(-50%); /* Центрируем по горизонтали */
-        }
-        #word {
-            width: 100px;
-            position: fixed; /* Фиксируем позицию изображения */
-            top: 330px; /* Позиционируем изображение 200px сверху */
-            left: 48%; /* Центрируем по горизонтали */
-            transform: translateX(-50%); /* Центрируем по горизонтали */
-        }
+#bomby {
+    width: 260px;
+    position: fixed;
+    top: 130px; /* Поменяйте значение на 130px для позиции 70 пикселей выше output */
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#word {
+    width: 100px;
+    position: fixed;
+    top: 260px; /* Позиция 70 пикселей выше output */
+    left: 49%;
+    transform: translateX(-50%);
+}
+
+#output {
+    font-size: 24px;
+    text-align: center;
+    display: block;
+    position: fixed;
+    top: 360px; /* Позиция output по центру */
+    left: 50%;
+    transform: translateX(-50%);
+}
+#message {
+    font-size: 20px;
+    text-align: center;
+    display: block;
+    position: fixed;
+    top: 400px; /* Позиция output по центру */
+    left: 50%;
+    transform: translateX(-50%);
+}
+#myinput::-webkit-input-placeholder {
+  font-size: 44px;
+}
 </style>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
@@ -42,13 +76,16 @@
 <img id="bomby" src="static/images/bomby.png" alt="Bomby">
 <div class="content" style="text-align: center;">
     <div id="word" style="font-size: 30px;"></div>
-    <div id="output" style="font-size: 24px; text-align: center;"></div>
+    <div id="output" style="font-size: 24px; text-align: center;display: block;"></div>
     <div id="message" style="font-size: 20px; display: none;"></div>
 </div>
-<div id="timer" style="position: fixed; top: 30px; right: 30px; font-size: 24px; color: #FFF;"></div>
+<div id="timer" style="position: fixed; top: 100px; right: 30px; font-size: 24px; color: #FFF;"></div>
 
+
+<input type="text" id="myinput" placeholder="жми сюда" style="width: 40%; display: none; position: fixed; bottom: 0;">
 
 <script>
+
  var timerSeconds = 7;
  var score = 0;
 var timerInterval;
@@ -75,8 +112,9 @@ function showGameOverWindow(score) {
     gameOverWindow.style.top = '50%';
     gameOverWindow.style.left = '50%';
     gameOverWindow.style.transform = 'translate(-50%, -50%)';
-    gameOverWindow.style.width = '33%';
-    gameOverWindow.style.height = '33vh';
+    gameOverWindow.style.width = '80%'; // Изменим ширину на 80% относительно размеров браузера
+    gameOverWindow.style.maxWidth = '400px'; // Добавим максимальную ширину для контроля ширины на больших экранах
+    gameOverWindow.style.height = 'auto'; // Автоматическая высота контейнера
     gameOverWindow.style.textAlign = 'center';
     gameOverWindow.style.borderRadius = '10px';
 
@@ -109,11 +147,17 @@ function showGameOverWindow(score) {
     gameOverWindow.appendChild(leaderboardButton);
 
     document.body.appendChild(gameOverWindow);
+    document.getElementById('timer').style.display = 'none';
 }
 
 
 
 function startTimer() {
+
+    if (timerInterval) {
+        clearInterval(timerInterval); // Очистить старый интервал, если он уже был установлен
+    }
+
     var timerElement = document.getElementById('timer');
     timerElement.textContent = 'Оставшееся время: ' + timerSeconds + ' сек';
 
@@ -146,6 +190,12 @@ function startTimer() {
     var text = '';
 
     function createWord() {
+
+        if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null; // Сброс переменной идентификатора интервала
+    }
+
         $.ajax({
             url: '/create_word',
             type: 'GET',
@@ -160,14 +210,13 @@ function startTimer() {
     createWord();
 
 
+if (navigator.userAgent.match(/Windows/i) || navigator.userAgent.match(/Macintosh/i) || navigator.userAgent.match(/Linux/i)) {
 
 $(document).keypress(function(event) {
     var char = String.fromCharCode(event.which);
     text += char;
     $('#output').text(text);
-    /*clearInterval(timerInterval);
-    startTimer();
-    */
+
 });
 
 $(document).keyup(function(event) {
@@ -195,8 +244,6 @@ $(document).keyup(function(event) {
                     timerSeconds = 7;
                 }, 400);
                 clearInterval(timerInterval);
-
-
                 } else {
                     $('#message').text('Плохо');
                      $('#message').show();
@@ -204,20 +251,79 @@ $(document).keyup(function(event) {
                             $('#message').hide();
                             text = '';
                             $('#output').text('');
-
                 }, 400);
                 }
-
-
-
-
-
-
-
             }
         });
     }
 });
+
+}
+
+
+
+
+
+
+if ((navigator.userAgent.match(/Android/i)  || navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/iPod/i) || navigator.userAgent.match(/BlackBerry/i) || navigator.userAgent.match(/Windows Phone/i))) {
+         /* document.getElementById('tap').style.display = 'block';*/
+           document.getElementById('myinput').style.display = 'block';
+
+           var input = document.getElementById("myinput");
+           input.focus();
+
+
+            $(document).on('input', function(event) {
+        var char = event.originalEvent.data;
+        if (char) {
+            text += char;
+            $('#output').text(text);
+        }
+    });
+
+    $(document).keydown(function(event) {
+        if (event.keyCode === 8) {
+            text = text.slice(0, -1);
+            $('#output').text(text);
+        }
+        if (event.keyCode === 13) {
+            $.ajax({
+                url: '/check_numbers',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ text: text }),
+                success: function(response) {
+                    if (response.hasNumbers) {
+                        $('#message').text('Отлично');
+                        score += 1;
+                        $('#message').show();
+                        createWord();
+                        timerSeconds = 7;
+                        setTimeout(function() {
+                            $('#message').hide();
+                            text = '';
+                            $('#output').text('');
+                            timerSeconds = 7;
+                        }, 400);
+                        clearInterval(timerInterval);
+                    } else {
+                        $('#message').text('Плохо');
+                        $('#message').show();
+                        setTimeout(function() {
+                            $('#message').hide();
+                            text = '';
+                            $('#output').text('');
+                        }, 400);
+                    }
+                }
+            });
+        }
+    });
+
+
+
+}
+
 
 </script>
 </body>

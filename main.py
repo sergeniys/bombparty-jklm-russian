@@ -1,20 +1,35 @@
 from flask import Flask, render_template, request, jsonify
-import consolbomb as bomber
+# import consolbomb as bomber
 from datetime import datetime
+import importlib
+import sys
+
+path = r'C:\Users\serg\PycharmProjects\reflex-web-main\consolbomb.py'
+name = 'consolbomb'
+
+
+spec = importlib.util.spec_from_file_location(name, path)
+module = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = module
+spec.loader.exec_module(module)
+
+import consolbomb as bomber
+
 
 app = Flask(__name__)
 f = open(r'russian.txt').readlines()
 params = {'historsis': [], 'phrase': '', 'nick': '', 'score': 0}
 
+
 @app.route('/save_nick', methods=['POST'])
 def save_nick():
     global params
     data = request.get_json()
-    print(data)
+   # print(data)
     params['nick'] = data.get('nick')
 
     if params['nick'] == '':
-        params['nick'] = "unnamed"
+        params['nick'] = "-"
     return ('', 204)
 
 
@@ -34,18 +49,20 @@ def leaders():
     return render_template('leaders.html', leaders=sorted_leaders_data)
 
 
-
 @app.route('/')
 def indexhome():
     return render_template('indexhome.html')
+
 
 @app.route('/game')
 def index():
     return render_template('index_no_input.html')
 
+
 @app.route('/need-computer')
 def indexcomp():
     return render_template('need-computer.html')
+
 
 def create_word():
     word = bomber.create()
@@ -53,10 +70,10 @@ def create_word():
     params['phrase'] = word
     return {'word': word}
 
+
 @app.route('/create_word', methods=['GET'])
 def generate_word():
     return jsonify(create_word())
-
 
 
 @app.route('/score', methods=['POST'])
@@ -64,7 +81,7 @@ def save_score():
     global params
     data = request.get_json()
     params['score'] = data['score']
-    if  params['score'] == 0:
+    if params['score'] == 0:
         return ('', 204)
     # Добавьте текущую дату в формате 'dd.mm.yyyy'
     current_date = datetime.now().strftime('%d.%m.%Y')
@@ -74,15 +91,13 @@ def save_score():
     return ('', 204)
 
 
-
-
 @app.route('/check_numbers', methods=['POST'])
 def check_numbers():
     global params
     data = request.get_json()
     text = str(data.get('text', '')).lower()[:-1]
     hasnumbers = False
-    #print('до', phrase, text, nick)
+    print('до', params['phrase'], text, params['nick'])
     # #print(str(text.lower())[:-1] == "число")
     #
     # if phrase in text:
@@ -93,12 +108,11 @@ def check_numbers():
     #     print('3')
 
     if params['phrase'] in text and f'{text}\n' in f and text not in params['historsis']:
-
         params['historsis'].append(text)
         hasnumbers = True
 
-
     return jsonify({'hasNumbers': hasnumbers})
 
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="192.168.0.58",port=5000, debug=True)

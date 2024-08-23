@@ -1,0 +1,47 @@
+
+            $(document).on('input', function(event) {
+        var char = event.originalEvent.data;
+        if (char) {
+            text += char;
+            $('#output').text(text);
+        }
+    });
+
+    $(document).keydown(function(event) {
+        if (event.keyCode === 8) {
+            text = text.slice(0, -1);
+            $('#output').text(text);
+        }
+        if (event.keyCode === 13) {
+            $.ajax({
+                url: '/check_numbers',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ text: text }),
+                success: function(response) {
+                    if (response.hasNumbers) {
+                        $('#message').text('Отлично');
+                        score += 1;
+                        $('#message').show();
+                        createWord();
+                        timerSeconds = 7;
+                        setTimeout(function() {
+                            $('#message').hide();
+                            text = '';
+                            $('#output').text('');
+                            timerSeconds = 7;
+                        }, 400);
+                        clearInterval(timerInterval);
+                    } else {
+                        $('#message').text('Плохо');
+                        $('#message').show();
+                        setTimeout(function() {
+                            $('#message').hide();
+                            text = '';
+                            $('#output').text('');
+                        }, 400);
+                    }
+                }
+            });
+        }
+    });

@@ -1,4 +1,5 @@
 
+
 import random
 from threading import Timer
 f = open(r'russian.txt').readlines()
@@ -21,6 +22,8 @@ def proverka(choser):
     if choser[0] in zapret   or choser[1] in zapret:
         return False
     if choser[0] in sogls and choser[1] in sogls:
+        return False
+    if choser[0] in "бвгджзклмнпрстфкцчщ" and choser[1] in "бвгджзклмнпрстфкцчщ":
         return False
     if choser[0] in vse_gls and choser[1] in vse_gls:
         return False
